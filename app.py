@@ -2,51 +2,31 @@ from flask import Flask
 from flask import jsonify
 app = Flask(__name__)
 
-def change(amount):
-    # calculate the resultant change and store the result (res)
+
+def currency_conversion(amount_in_dollars):
+    #calculate the resultant currency and store the result (res)
     res = []
-    coins = [1,5,10,25] # value of pennies, nickels, dimes, quarters
-    coin_lookup = {25: "quarters", 10: "dimes", 5: "nickels", 1: "pennies"}
 
-    # divide the amount*100 (the amount in cents) by a coin value
-    # record the number of coins that evenly divide and the remainder
-    coin = coins.pop()
-    num, rem  = divmod(int(amount*100), coin)
-    # append the coin type and number of coins that had no remainder
-    res.append({num:coin_lookup[coin]})
+    amount_in_Euro = amount_in_dollars * 0.92
+    amount_in_Won = amount_in_dollars * 1232.54
+    res.append({'Euro': amount_in_Euro, 'Won': amount_in_Won})
 
-    # while there is still some remainder, continue adding coins to the result
-    while rem > 0:
-        coin = coins.pop()
-        num, rem = divmod(rem, coin)
-        if num:
-            if coin in coin_lookup:
-                res.append({num:coin_lookup[coin]})
     return res
 
 
+# Hello world route
 @app.route('/')
 def hello():
-    """Return a friendly HTTP greeting."""
     print("I am inside hello world")
-    return 'Hello World! I can make change at route: /change'
+    return 'Hello World! Let me convert currency at route: /currency/<amount_in_dollars>'
 
-@app.route('/change/<dollar>/<cents>')
-def changeroute(dollar, cents):
-    print(f"Make Change for {dollar}.{cents}")
-    amount = f"{dollar}.{cents}"
-    result = change(float(amount))
+@app.route('/currency/<amount_in_dollar>')
+def changeroute(amount_in_dollar):
+    print(f"Make conversion for {amount_in_dollar}")
+    amount = f"{amount_in_dollar}"
+    result = currency_conversion(float(amount))
     return jsonify(result)
-    
-    
-@app.route('/100/change/<dollar>/<cents>')
-def change100route(dollar, cents):
-    print(f"Make Change for {dollar}.{cents}")
-    amount = f"{dollar}.{cents}"
-    amount100 = float(amount) * 100
-    print(f"This is the {amount} X 100")
-    result = change(amount100)
-    return jsonify(result)
+
 
 
 if __name__ == '__main__':
